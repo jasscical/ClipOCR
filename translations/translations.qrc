@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/translations">
+        <file>clipocr_en.qm</file>
+        <file>clipocr_zh_CN.qm</file>
+    </qresource>
+</RCC>
