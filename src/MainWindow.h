@@ -13,9 +13,9 @@ class QPushButton;
 class QAction;
 class QComboBox;
 
-// ClipOCR - clipboard OCR utility.
-// Main window: shows OCR history (image + recognized text) and provides
-// access to Settings and the UI language switch.
+// ClipOCR - 剪贴板 OCR 小工具。
+// 主窗口：展示 OCR 历史（图片 + 识别文字），并提供
+// 设置入口与界面语言切换。
 class MainWindow : public QMainWindow
 {
     Q_OBJECT

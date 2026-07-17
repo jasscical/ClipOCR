@@ -5,8 +5,8 @@
 class QSystemTrayIcon;
 class QAction;
 
-// ClipOCR - clipboard OCR utility.
-// System tray icon with a context menu (Settings / Quit).
+// ClipOCR - 剪贴板 OCR 小工具。
+// 系统托盘图标，带右键菜单（设置 / 退出）。
 class TrayIcon : public QObject
 {
     Q_OBJECT

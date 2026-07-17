@@ -1,4 +1,4 @@
-// ClipOCR - clipboard OCR utility.
+// ClipOCR - 剪贴板 OCR 小工具。
 #pragma once
 
 #include <QObject>
@@ -19,23 +19,23 @@ public:
 
     bool isReady() const;
 
-    // Optional debug log (clipocr.log next to the executable).
-    // Enabled only when the CLIPOCR_DEBUG environment variable is set.
+    // 可选的调试日志（位于可执行文件同目录的 clipocr.log）。
+    // 仅当设置了 CLIPOCR_DEBUG 环境变量时才启用。
     static void log(const QString& strMsg);
 
-    // Run OCR on an image. Returns true on success with recognized text in
-    // strOutText, or false with a human-readable error in strOutError.
+    // 对一张图片执行 OCR。成功时返回 true，识别文字写入 strOutText；
+    // 失败时返回 false，人类可读的错误信息写入 strOutError。
     bool recognize(const QImage& image, QString& strOutText, QString& strOutError);
 
 private:
     static QString postProcess(const QString& str_raw);
 
-    // Tesseract executable name/path. Default: "tesseract" (relies on PATH).
+    // Tesseract 可执行文件名/路径。默认："tesseract"（依赖 PATH）。
     QString m_strTesseractPath;
-    // Tessdata directory override. Empty = Tesseract default.
+    // Tessdata 目录覆盖。留空 = Tesseract 默认目录。
     QString m_strTessdataDir;
-    // Language string passed to -l (e.g., "chi_sim+eng").
+    // 传给 -l 的语言字符串（如 "chi_sim+eng"）。
     QString m_strLanguage;
-    // Upscale factor (1-4). Higher improves small-text accuracy at cost of time.
+    // 放大倍数（1-4）。越大对小字识别越准，但更耗时。
     int m_iUpscale = 3;
 };

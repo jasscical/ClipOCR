@@ -14,8 +14,8 @@
 #include "SettingsDialog.h"
 #include "HistoryManager.h"
 
-// Install (or remove) the UI translator for the given language code.
-// "en" uses the source strings (no translator needed).
+// 为指定语言代码安装（或移除）界面翻译器。
+// "en" 直接使用源码中的原字符串（无需翻译器）。
 static void applyLanguage(QApplication& app, QTranslator& translator, const QString& str_lang)
 {
     app.removeTranslator(&translator);
@@ -36,14 +36,14 @@ int main(int argc, char* argv[])
     Config config;
     config.load();
 
-    // Load UI language before any widget is created.
+    // 在创建任何窗口部件之前先加载界面语言。
     QTranslator translator;
     applyLanguage(app, translator, config.language());
 
     OcrEngine engine;
     engine.setTesseractPath(config.tesseractPath());
     engine.setTessdataDir(config.tessdataDir());
-    engine.setLanguage(config.language());
+    engine.setLanguage(config.ocrLanguage());
     engine.setUpscaleFactor(config.upscaleFactor());
 
     ClipboardMonitor monitor;
@@ -59,11 +59,11 @@ int main(int argc, char* argv[])
             QObject::connect(p_settings, &SettingsDialog::settingsApplied, [&]() {
                 engine.setTesseractPath(config.tesseractPath());
                 engine.setTessdataDir(config.tessdataDir());
-                engine.setLanguage(config.language());
+                engine.setLanguage(config.ocrLanguage());
                 engine.setUpscaleFactor(config.upscaleFactor());
                 hotkey.unregisterHotkey();
                 hotkey.registerHotkey(config.hotkey());
-                // Re-apply language in case it changed in the dialog.
+                // 若对话框中改了语言则重新应用。
                 config.load();
                 applyLanguage(app, translator, config.language());
                 tray.retranslate();
@@ -75,12 +75,12 @@ int main(int argc, char* argv[])
         p_settings->activateWindow();
     };
 
-    // Hotkey pressed -> grab clipboard image.
+    // 热键按下 -> 抓取剪贴板图片。
     QObject::connect(&hotkey, &GlobalHotkey::activated,
                      &monitor, &ClipboardMonitor::grabFromClipboard);
 
-    // Image captured -> OCR (in a background thread) -> write text back + history.
-    // OCR runs via QtConcurrent so the GUI thread never blocks (no "not responding").
+    // 抓到图片 -> OCR（后台线程）-> 写回文本 + 历史记录。
+    // OCR 通过 QtConcurrent 执行，GUI 线程永不阻塞（不会"无响应"）。
     struct OcrResult {
         bool bOk = false;
         QString strText;
@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
                      [&](const QImage img) {
                          if (s_bBusy.load()) {
                              OcrEngine::log(QStringLiteral("main: imageCaptured but busy, ignored"));
-                             return;  // ignore re-entrant triggers while a job is running
+                             return;  // 任务运行中忽略重入触发
                          }
                          s_bBusy.store(true);
                          OcrEngine::log(QStringLiteral("main: imageCaptured, submitting OCR job"));
@@ -143,7 +143,7 @@ int main(int argc, char* argv[])
                                  QCoreApplication::translate("main", "No image found in clipboard"));
                      });
 
-    // MainWindow requests.
+    // 主窗口请求。
     QObject::connect(&window, &MainWindow::settingsRequested, showSettings);
     QObject::connect(&window, &MainWindow::clearHistoryRequested, &history, &HistoryManager::clear);
     QObject::connect(&window, &MainWindow::languageChanged,

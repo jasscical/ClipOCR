@@ -27,7 +27,7 @@ bool GlobalHotkey::registerHotkey(const QKeySequence& seq)
     if (seq.isEmpty())
         return false;
 
-    const QKeyCombination kc = seq[0]; // first key combination
+    const QKeyCombination kc = seq[0]; // 第一组按键组合
     const Qt::KeyboardModifiers mods = kc.keyboardModifiers();
     const int i_key = kc.key();
     if (mods & Qt::CTRL)  m_uiNativeMods |= MOD_CONTROL;
@@ -35,7 +35,7 @@ bool GlobalHotkey::registerHotkey(const QKeySequence& seq)
     if (mods & Qt::SHIFT) m_uiNativeMods |= MOD_SHIFT;
     if (mods & Qt::META)  m_uiNativeMods |= MOD_WIN;
 
-    // Qt key codes for letters/digits/F-keys match Win32 VK_* codes.
+    // 字母/数字/F 键的 Qt 键码与 Win32 的 VK_* 码一致。
     m_uiNativeKey = static_cast<quint32>(i_key) & 0xFFFF;
 
     if (!RegisterHotKey(nullptr, HOTKEY_ID, m_uiNativeMods, m_uiNativeKey)) {
@@ -45,7 +45,7 @@ bool GlobalHotkey::registerHotkey(const QKeySequence& seq)
     return true;
 #else
     Q_UNUSED(seq);
-    // TODO(cross-platform): macOS -> CGEventTap; Linux/X11 -> XGrabKey; Wayland -> portal
+    // TODO(跨平台)：macOS -> CGEventTap；Linux/X11 -> XGrabKey；Wayland -> portal
     return false;
 #endif
 }
@@ -58,7 +58,7 @@ void GlobalHotkey::unregisterHotkey()
         m_bRegistered = false;
     }
 #else
-    // nothing to unregister yet
+    // 暂无需要注销的内容
 #endif
 }
 

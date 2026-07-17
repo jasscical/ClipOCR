@@ -37,7 +37,7 @@ MainWindow::MainWindow(Config* p_config, HistoryManager* p_history, QWidget* par
     connect(m_pHistory, &HistoryManager::recordAdded, this, &MainWindow::onHistoryRecordAdded);
     connect(m_pHistory, &HistoryManager::cleared, this, &MainWindow::onHistoryCleared);
 
-    // Replay any records that already exist (e.g. loaded later).
+    // 回放已存在的记录（例如稍后加载的）。
     for (int i = m_pHistory->count() - 1; i >= 0; --i)
         addListItem(m_pHistory->at(i), i);
     refreshEmptyState();
@@ -54,7 +54,7 @@ void MainWindow::buildUi()
     setCentralWidget(p_central);
     auto* p_root = new QVBoxLayout(p_central);
 
-    // Toolbar
+    // 工具栏
     auto* p_tool = new QToolBar(this);
     p_tool->setMovable(false);
     m_pSettingsAct = p_tool->addAction(QStringLiteral("Settings"));
@@ -72,11 +72,11 @@ void MainWindow::buildUi()
     m_pAboutAct = p_tool->addAction(QStringLiteral("About"));
     addToolBar(p_tool);
 
-    // Splitter: list (left) | detail (right)
+    // 分割器：列表（左）| 详情（右）
     auto* p_split = new QSplitter(Qt::Horizontal, this);
     p_split->setChildrenCollapsible(false);
 
-    // Left: history list
+    // 左侧：历史列表
     auto* p_left = new QWidget(this);
     auto* p_leftLayout = new QVBoxLayout(p_left);
     p_leftLayout->setContentsMargins(0, 0, 0, 0);
@@ -88,7 +88,7 @@ void MainWindow::buildUi()
     m_pList->setSpacing(4);
     p_leftLayout->addWidget(m_pList);
 
-    // Right: detail
+    // 右侧：详情
     auto* p_right = new QWidget(this);
     auto* p_rightLayout = new QVBoxLayout(p_right);
     p_rightLayout->setContentsMargins(8, 8, 8, 8);
@@ -265,7 +265,7 @@ void MainWindow::onHistoryCleared()
 
 void MainWindow::closeEvent(QCloseEvent* p_event)
 {
-    // Keep running in the tray; just hide the window.
+    // 继续在托盘中运行；仅隐藏窗口。
     hide();
     p_event->accept();
 }

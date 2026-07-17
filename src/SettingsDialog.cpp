@@ -3,6 +3,7 @@
 
 #include <QCheckBox>
 #include <QComboBox>
+#include <QEvent>
 #include <QFileDialog>
 #include <QFormLayout>
 #include <QHBoxLayout>
@@ -12,6 +13,25 @@
 #include <QPushButton>
 #include <QSpinBox>
 #include <QVBoxLayout>
+
+// 友好名称（可翻译）映射到 Tesseract 语言代码。
+// 代码作为 itemData 保存并写入 Config；名称仅用于显示。
+static const QVector<QPair<QString, const char*>>& ocrLangOptions()
+{
+    static const QVector<QPair<QString, const char*>> s_list = {
+        {QStringLiteral("chi_sim+eng"), "Chinese + English"},
+        {QStringLiteral("eng"),          "English"},
+        {QStringLiteral("chi_sim"),      "Chinese (simplified)"},
+        {QStringLiteral("chi_tra"),      "Chinese (traditional)"},
+        {QStringLiteral("jpn"),          "Japanese"},
+        {QStringLiteral("kor"),          "Korean"},
+        {QStringLiteral("fra"),          "French"},
+        {QStringLiteral("deu"),          "German"},
+        {QStringLiteral("spa"),          "Spanish"},
+        {QStringLiteral("rus"),          "Russian"},
+    };
+    return s_list;
+}
 
 SettingsDialog::SettingsDialog(Config* p_config, QWidget* parent)
     : QDialog(parent), m_pConfig(p_config)
@@ -35,25 +55,21 @@ SettingsDialog::SettingsDialog(Config* p_config, QWidget* parent)
     p_pathRow->addWidget(m_pTessdataEdit, 1);
     p_pathRow->addWidget(m_pBrowseBtn);
 
-    m_pLangCombo = new QComboBox(this);
-    m_pLangCombo->addItem(QStringLiteral("English"), QStringLiteral("eng"));
-    m_pLangCombo->addItem(QStringLiteral("Chinese (Simp.)"), QStringLiteral("chi_sim+eng"));
-    m_pLangCombo->setCurrentIndex(
-        (m_pConfig->language().contains(QStringLiteral("chi_sim"))) ? 1 : 0);
+    m_pOcrLangCombo = new QComboBox(this);
 
     m_pHotkeyLbl = new QLabel(this);
     m_pUpscaleLbl = new QLabel(this);
     m_pPopupLbl = new QLabel(this);
     m_pTessPathLbl = new QLabel(this);
     m_pTessdataLbl = new QLabel(this);
-    m_pLangLbl = new QLabel(this);
+    m_pOcrLangLbl = new QLabel(this);
 
     p_form->addRow(m_pHotkeyLbl, m_pHotkeyEdit);
     p_form->addRow(m_pUpscaleLbl, m_pUpscaleSpin);
     p_form->addRow(m_pPopupLbl, m_pPopupCheck);
+    p_form->addRow(m_pOcrLangLbl, m_pOcrLangCombo);
     p_form->addRow(m_pTessPathLbl, m_pTessPathEdit);
     p_form->addRow(m_pTessdataLbl, p_pathRow);
-    p_form->addRow(m_pLangLbl, m_pLangCombo);
     p_root->addLayout(p_form);
 
     m_pHintLabel = new QLabel(this);
@@ -76,6 +92,13 @@ SettingsDialog::SettingsDialog(Config* p_config, QWidget* parent)
     retranslateUi();
 }
 
+void SettingsDialog::changeEvent(QEvent* p_event)
+{
+    if (p_event->type() == QEvent::LanguageChange)
+        retranslateUi();
+    QDialog::changeEvent(p_event);
+}
+
 void SettingsDialog::loadFromConfig()
 {
     m_pHotkeyEdit->setKeySequence(m_pConfig->hotkey());
@@ -83,8 +106,8 @@ void SettingsDialog::loadFromConfig()
     m_pPopupCheck->setChecked(m_pConfig->showPopup());
     m_pTessPathEdit->setText(m_pConfig->tesseractPath());
     m_pTessdataEdit->setText(m_pConfig->tessdataDir());
-    m_pLangCombo->setCurrentIndex(
-        (m_pConfig->language().contains(QStringLiteral("chi_sim"))) ? 1 : 0);
+    const int iIdx = m_pOcrLangCombo->findData(m_pConfig->ocrLanguage());
+    m_pOcrLangCombo->setCurrentIndex(iIdx >= 0 ? iIdx : 0);
 }
 
 void SettingsDialog::retranslateUi()
@@ -93,10 +116,19 @@ void SettingsDialog::retranslateUi()
     m_pHotkeyLbl->setText(tr("Hotkey"));
     m_pUpscaleLbl->setText(tr("Upscale factor (1-4)"));
     m_pPopupLbl->setText(tr("Show popup on success"));
+    m_pOcrLangLbl->setText(tr("OCR recognition language"));
+    m_pOcrLangCombo->setToolTip(tr(
+        "Language of the text in the screenshots (Tesseract code, e.g. chi_sim+eng)."));
+    // 用翻译后的名称重建下拉项，然后重新选中当前 OCR 语言。
+    // 这样在切换界面语言（通过 changeEvent 触发本函数）时，选中项不会丢失。
+    m_pOcrLangCombo->clear();
+    for (const auto& opt : ocrLangOptions())
+        m_pOcrLangCombo->addItem(tr(opt.second), opt.first);
+    const int iIdx = m_pOcrLangCombo->findData(m_pConfig->ocrLanguage());
+    m_pOcrLangCombo->setCurrentIndex(iIdx >= 0 ? iIdx : 0);
     m_pTessPathLbl->setText(tr("Tesseract path"));
     m_pTessdataLbl->setText(tr("Tessdata directory"));
     m_pBrowseBtn->setText(tr("Browse..."));
-    m_pLangLbl->setText(tr("Language(s)"));
     m_pSaveBtn->setText(tr("Save"));
     m_pResetBtn->setText(tr("Reset to defaults"));
     m_pHintLabel->setText(tr(
@@ -118,9 +150,9 @@ void SettingsDialog::onSave()
     m_pConfig->setHotkey(m_pHotkeyEdit->keySequence());
     m_pConfig->setUpscaleFactor(m_pUpscaleSpin->value());
     m_pConfig->setShowPopup(m_pPopupCheck->isChecked());
+    m_pConfig->setOcrLanguage(m_pOcrLangCombo->currentData().toString());
     m_pConfig->setTesseractPath(m_pTessPathEdit->text().trimmed());
     m_pConfig->setTessdataDir(m_pTessdataEdit->text().trimmed());
-    m_pConfig->setLanguage(m_pLangCombo->itemData(m_pLangCombo->currentIndex()).toString());
     m_pConfig->save();
     emit settingsApplied();
     accept();
@@ -131,9 +163,9 @@ void SettingsDialog::onReset()
     m_pConfig->setHotkey(QKeySequence(QStringLiteral("Ctrl+Alt+O")));
     m_pConfig->setUpscaleFactor(3);
     m_pConfig->setShowPopup(true);
+    m_pConfig->setOcrLanguage(Config::defaultOcrLanguage());
     m_pConfig->setTesseractPath(QStringLiteral("tesseract"));
     m_pConfig->setTessdataDir(QString());
-    m_pConfig->setLanguage(Config::defaultLanguage());
     m_pConfig->save();
     loadFromConfig();
     emit settingsApplied();

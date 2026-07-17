@@ -35,23 +35,29 @@ target_link_libraries(clipocr PRIVATE
     Qt6::Concurrent
 )
 
-# Windows GUI subsystem: no console window.
+# Windows GUI 子系统：无控制台窗口。
 if(WIN32)
     set_target_properties(clipocr PROPERTIES WIN32_EXECUTABLE TRUE)
 endif()
 
-# Tesseract OCR is invoked directly via QProcess (no helper script needed).
+# Tesseract OCR 直接通过 QProcess 调用（无需辅助脚本）。
 
-# Regenerate .qm from .ts when the translations change.
+# 构建时从 .ts 重新生成 .qm。若 PATH 上找不到 lrelease，则退回已提交的 .qm
+# 文件，确保构建不会失败。
 find_program(LRELEASE_EXECUTABLE lrelease)
 if(LRELEASE_EXECUTABLE)
-    foreach(_ts clipocr_en.ts clipocr_zh_CN.ts)
-        add_custom_command(
-            OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/translations/${_ts}.qm
-            COMMAND ${LRELEASE_EXECUTABLE}
-                    ${CMAKE_CURRENT_SOURCE_DIR}/translations/${_ts}
-                    -qm ${CMAKE_CURRENT_SOURCE_DIR}/translations/${_ts}.qm
-            DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/translations/${_ts}
-            VERBATIM)
-    endforeach()
+    set(LRELEASE_TS
+        ${CMAKE_CURRENT_SOURCE_DIR}/translations/clipocr_en.ts
+        ${CMAKE_CURRENT_SOURCE_DIR}/translations/clipocr_zh_CN.ts)
+    set(LRELEASE_QM
+        ${CMAKE_CURRENT_SOURCE_DIR}/translations/clipocr_en.qm
+        ${CMAKE_CURRENT_SOURCE_DIR}/translations/clipocr_zh_CN.qm)
+    add_custom_command(
+        OUTPUT ${LRELEASE_QM}
+        COMMAND ${LRELEASE_EXECUTABLE} ${LRELEASE_TS}
+        DEPENDS ${LRELEASE_TS}
+        COMMENT "Generating translation .qm files"
+        VERBATIM)
+    add_custom_target(update_translations DEPENDS ${LRELEASE_QM})
+    add_dependencies(clipocr update_translations)
 endif()

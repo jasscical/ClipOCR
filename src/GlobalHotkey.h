@@ -8,12 +8,12 @@
 #  include <windows.h>
 #endif
 
-// ClipOCR - clipboard OCR utility.
-// Global hotkey registration.
-// Windows uses RegisterHotKey + a native event filter.
-// NOTE: Qt6 removed QObject::nativeEvent, so we use QAbstractNativeEventFilter
-// (which survives across Qt5/Qt6) instead of overriding nativeEvent().
-// macOS/Linux are TODO (see implementation).
+// ClipOCR - 剪贴板 OCR 小工具。
+// 全局热键注册。
+// Windows 使用 RegisterHotKey + 原生事件过滤器。
+// 注意：Qt6 移除了 QObject::nativeEvent，因此改用 QAbstractNativeEventFilter
+// （Qt5/Qt6 通用），而非重写 nativeEvent()。
+// macOS/Linux 待实现（见具体实现）。
 class GlobalHotkey : public QObject, public QAbstractNativeEventFilter
 {
     Q_OBJECT
@@ -21,8 +21,8 @@ public:
     explicit GlobalHotkey(QObject* parent = nullptr);
     ~GlobalHotkey() override;
 
-    // Register a single-key global hotkey from a QKeySequence.
-    // Returns true on success. Only one hotkey is tracked at a time.
+    // 从 QKeySequence 注册一个单键全局热键。
+    // 成功返回 true。同一时刻只跟踪一个热键。
     bool registerHotkey(const QKeySequence& seq);
     void unregisterHotkey();
 

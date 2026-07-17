@@ -3,8 +3,8 @@
 #include <QObject>
 #include <QImage>
 
-// ClipOCR - clipboard OCR utility.
-// Reads the current clipboard image on demand (triggered by the global hotkey).
+// ClipOCR - 剪贴板 OCR 小工具。
+// 按需读取当前剪贴板图片（由全局热键触发）。
 class ClipboardMonitor : public QObject
 {
     Q_OBJECT
@@ -12,7 +12,7 @@ public:
     explicit ClipboardMonitor(QObject* parent = nullptr);
 
 public slots:
-    // Grab the current clipboard image and emit the result.
+    // 抓取当前剪贴板图片并发出结果信号。
     void grabFromClipboard();
 
 signals:

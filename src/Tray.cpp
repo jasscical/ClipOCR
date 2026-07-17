@@ -8,7 +8,7 @@
 
 TrayIcon::TrayIcon(QObject* parent) : QObject(parent)
 {
-    // Build a simple teal circle icon without external binary assets.
+    // 不依赖外部二进制资源，绘制一个简易的青色圆形图标。
     QPixmap pixmap(32, 32);
     pixmap.fill(Qt::transparent);
     QPainter painter(&pixmap);

@@ -11,7 +11,7 @@ void ClipboardMonitor::grabFromClipboard()
     if (!p_cb)
         return;
 
-    // QClipboard::image() works across Windows / macOS / Linux.
+    // QClipboard::image() 在 Windows / macOS / Linux 上均可使用。
     const QImage img = p_cb->image();
     if (img.isNull())
         emit noImageInClipboard();
