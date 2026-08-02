@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# ============================================================
+# build.local.sh 示例（此文件本身不要提交；build.sh 会自动 source 它）
+# 复制本文件为 build.local.sh 并按本机路径修改即可。
+# ============================================================
+
+# ---- 场景 A：Windows 本机，Qt 装在非标准路径 ----
+# export QT_BASE="E:/ITSoftware/QT/qt6/6.7.2/mingw_64"
+# export QT_TOOLCHAIN_FILE="$QT_BASE/lib/cmake/Qt6/qt.toolchain.cmake"
+# export CMAKE="$QT_BASE/../../Tools/CMake_64/bin/cmake.exe"
+# export WINDEPLOYQT="$QT_BASE/bin/windeployqt.exe"
+
+# ---- 场景 B：Linux 交叉编译 Windows exe ----
+# export CMAKE="x86_64-w64-mingw32-cmake"
+# export WINDEPLOYQT="x86_64-w64-mingw32-windeployqt"
+
+# ---- 场景 C：原生 Linux/macOS Qt 开发（cmake 已在 PATH） ----
+# export CMAKE=cmake
+# export QT_TOOLCHAIN_FILE=""   # 留空，让 cmake 自动查找 Qt6
