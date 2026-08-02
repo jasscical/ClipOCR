@@ -37,3 +37,4 @@ tmp/
 
 # ---------- Local build override (machine-specific paths, NOT committed) ----------
 build.local.bat
+build.local.sh

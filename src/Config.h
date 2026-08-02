@@ -22,6 +22,10 @@ public:
     bool showPopup() const;
     void setShowPopup(bool b_show);
 
+    // 是否随系统启动（写入 Windows 注册表 Run 项，跨平台编译时仅在 Windows 生效）。
+    bool autoStart() const;
+    void setAutoStart(bool b_auto);
+
     // Tesseract 可执行文件路径。留空 = "tesseract"（依赖 PATH 查找）。
     QString tesseractPath() const;
     void setTesseractPath(const QString& str_path);
@@ -61,6 +65,7 @@ private:
     QKeySequence m_SeqHotkey;
     int m_iUpscale = 3;
     bool m_bShowPopup = true;
+    bool m_bAutoStart = false;
     QString m_strTessPath;       // 默认："tesseract"
     QString m_strTessdataDir;
     QString m_strLanguage;

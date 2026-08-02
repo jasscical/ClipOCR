@@ -1,5 +1,8 @@
 #include <QApplication>
 #include <QClipboard>
+#include <QTextStream>
+#include <QLocalServer>
+#include <QLocalSocket>
 #include <QTranslator>
 #include <QtConcurrent>
 #include <QFutureWatcher>
@@ -13,6 +16,7 @@
 #include "MainWindow.h"
 #include "SettingsDialog.h"
 #include "HistoryManager.h"
+#include "AutoStarter.h"
 
 // 为指定语言代码安装（或移除）界面翻译器。
 // "en" 直接使用源码中的原字符串（无需翻译器）。
@@ -36,9 +40,22 @@ int main(int argc, char* argv[])
     Config config;
     config.load();
 
+    // 单实例：固定服务名。第二个实例连上后即通知主实例显示并自行退出。
+    const QString kServerName = QStringLiteral("ClipOCR-SingleInstance");
+    QLocalSocket probe;
+    probe.connectToServer(kServerName);
+    if (probe.waitForConnected(500)) {
+        QTextStream(&probe) << QStringLiteral("show\n");
+        probe.waitForBytesWritten(500);
+        return 0;   // 已有实例在运行，本次启动仅负责唤起它
+    }
+
     // 在创建任何窗口部件之前先加载界面语言。
     QTranslator translator;
     applyLanguage(app, translator, config.language());
+
+    // 依据配置同步开机启动注册表项（配置为唯一真相源）。
+    AutoStarter::setAutoStart(config.autoStart());
 
     OcrEngine engine;
     engine.setTesseractPath(config.tesseractPath());
@@ -67,6 +84,8 @@ int main(int argc, char* argv[])
                 config.load();
                 applyLanguage(app, translator, config.language());
                 tray.retranslate();
+                // 同步开机启动注册表项（勾选/取消立即生效）。
+                AutoStarter::setAutoStart(config.autoStart());
             });
         }
         p_settings->loadFromConfig();
@@ -160,6 +179,19 @@ int main(int argc, char* argv[])
     hotkey.registerHotkey(config.hotkey());
     window.show();
     tray.show();
+
+    // 作为主实例监听本地服务；后续实例连入时唤起本窗口（单实例跳转）。
+    QLocalServer localServer;
+    QLocalServer::removeServer(kServerName);   // 清理可能残留的 socket
+    if (localServer.listen(kServerName)) {
+        QObject::connect(&localServer, &QLocalServer::newConnection, [&]() {
+            if (QLocalSocket* p_client = localServer.nextPendingConnection())
+                p_client->deleteLater();   // 读到的 "show" 指令无需处理，仅用于唤起
+            window.showNormal();
+            window.raise();
+            window.activateWindow();
+        });
+    }
 
     return app.exec();
 }

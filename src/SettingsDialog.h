@@ -40,6 +40,7 @@ private:
     QLabel* m_pHotkeyLbl = nullptr;
     QLabel* m_pUpscaleLbl = nullptr;
     QLabel* m_pPopupLbl = nullptr;
+    QLabel* m_pAutoStartLbl = nullptr;
     QLabel* m_pTessPathLbl = nullptr;
     QLabel* m_pTessdataLbl = nullptr;
     QLabel* m_pOcrLangLbl = nullptr;
@@ -47,6 +48,7 @@ private:
     QKeySequenceEdit* m_pHotkeyEdit = nullptr;
     QSpinBox* m_pUpscaleSpin = nullptr;
     QCheckBox* m_pPopupCheck = nullptr;
+    QCheckBox* m_pAutoStartCheck = nullptr;
     QLineEdit* m_pTessPathEdit = nullptr;
     QLineEdit* m_pTessdataEdit = nullptr;
     QPushButton* m_pBrowseBtn = nullptr;

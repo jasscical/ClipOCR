@@ -20,7 +20,7 @@ Config::Config(QObject* parent) : QObject(parent)
 
 QString Config::configFilePath()
 {
-    return QCoreApplication::applicationDirPath() + QStringLiteral("/clipocr.ini");
+    return QCoreApplication::applicationDirPath() + QStringLiteral("/config.ini");
 }
 
 QString Config::defaultLanguage()
@@ -58,6 +58,9 @@ void Config::setUpscaleFactor(int i_factor) { m_iUpscale = qBound(1, i_factor, 4
 bool Config::showPopup() const { return m_bShowPopup; }
 void Config::setShowPopup(bool b_show) { m_bShowPopup = b_show; }
 
+bool Config::autoStart() const { return m_bAutoStart; }
+void Config::setAutoStart(bool b_auto) { m_bAutoStart = b_auto; }
+
 QString Config::tesseractPath() const { return m_strTessPath; }
 void Config::setTesseractPath(const QString& str_path)
 {
@@ -79,10 +82,21 @@ bool Config::firstRun() const
 
 void Config::load()
 {
-    QSettings s(configFilePath(), QSettings::IniFormat);
+    // 配置文件从 clipocr.ini 改名为 config.ini 后，首次启动做一次迁移：
+    // 若新文件不存在但旧的 clipocr.ini 在，则从旧文件读，并在 save() 时写回新位置。
+    QString strPath = configFilePath();
+    if (!QFile::exists(strPath)) {
+        const QString strOld = QCoreApplication::applicationDirPath()
+                               + QStringLiteral("/clipocr.ini");
+        if (QFile::exists(strOld))
+            strPath = strOld;
+    }
+
+    QSettings s(strPath, QSettings::IniFormat);
     m_SeqHotkey = QKeySequence(s.value(QStringLiteral("hotkey"), m_SeqHotkey.toString()).toString());
     m_iUpscale = s.value(QStringLiteral("upscale"), m_iUpscale).toInt();
     m_bShowPopup = s.value(QStringLiteral("showPopup"), m_bShowPopup).toBool();
+    m_bAutoStart = s.value(QStringLiteral("auto_start"), m_bAutoStart).toBool();
     m_strTessPath = s.value(QStringLiteral("tesseractPath"), m_strTessPath).toString();
     m_strTessdataDir = s.value(QStringLiteral("tessdataDir"), m_strTessdataDir).toString();
     m_strOcrLanguage = s.value(QStringLiteral("ocr_language"), defaultOcrLanguage()).toString();
@@ -92,6 +106,12 @@ void Config::load()
     m_strLanguage = (strLang == QStringLiteral("en") || strLang == QStringLiteral("zh_CN"))
                         ? strLang
                         : defaultLanguage();
+
+    // 若本次是从旧文件迁移读取，则写回新位置并删除旧文件，完成迁移。
+    if (strPath != configFilePath()) {
+        save();
+        QFile::remove(strPath);
+    }
 }
 
 void Config::save()
@@ -100,6 +120,7 @@ void Config::save()
     s.setValue(QStringLiteral("hotkey"), m_SeqHotkey.toString());
     s.setValue(QStringLiteral("upscale"), m_iUpscale);
     s.setValue(QStringLiteral("showPopup"), m_bShowPopup);
+    s.setValue(QStringLiteral("auto_start"), m_bAutoStart);
     s.setValue(QStringLiteral("tesseractPath"), m_strTessPath);
     s.setValue(QStringLiteral("tessdataDir"), m_strTessdataDir);
     s.setValue(QStringLiteral("ocr_language"), m_strOcrLanguage);

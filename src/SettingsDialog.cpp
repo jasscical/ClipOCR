@@ -46,6 +46,7 @@ SettingsDialog::SettingsDialog(Config* p_config, QWidget* parent)
     m_pUpscaleSpin = new QSpinBox(this);
     m_pUpscaleSpin->setRange(1, 4);
     m_pPopupCheck = new QCheckBox(this);
+    m_pAutoStartCheck = new QCheckBox(this);
 
     m_pTessPathEdit = new QLineEdit(this);
 
@@ -60,6 +61,7 @@ SettingsDialog::SettingsDialog(Config* p_config, QWidget* parent)
     m_pHotkeyLbl = new QLabel(this);
     m_pUpscaleLbl = new QLabel(this);
     m_pPopupLbl = new QLabel(this);
+    m_pAutoStartLbl = new QLabel(this);
     m_pTessPathLbl = new QLabel(this);
     m_pTessdataLbl = new QLabel(this);
     m_pOcrLangLbl = new QLabel(this);
@@ -67,6 +69,7 @@ SettingsDialog::SettingsDialog(Config* p_config, QWidget* parent)
     p_form->addRow(m_pHotkeyLbl, m_pHotkeyEdit);
     p_form->addRow(m_pUpscaleLbl, m_pUpscaleSpin);
     p_form->addRow(m_pPopupLbl, m_pPopupCheck);
+    p_form->addRow(m_pAutoStartLbl, m_pAutoStartCheck);
     p_form->addRow(m_pOcrLangLbl, m_pOcrLangCombo);
     p_form->addRow(m_pTessPathLbl, m_pTessPathEdit);
     p_form->addRow(m_pTessdataLbl, p_pathRow);
@@ -104,6 +107,7 @@ void SettingsDialog::loadFromConfig()
     m_pHotkeyEdit->setKeySequence(m_pConfig->hotkey());
     m_pUpscaleSpin->setValue(m_pConfig->upscaleFactor());
     m_pPopupCheck->setChecked(m_pConfig->showPopup());
+    m_pAutoStartCheck->setChecked(m_pConfig->autoStart());
     m_pTessPathEdit->setText(m_pConfig->tesseractPath());
     m_pTessdataEdit->setText(m_pConfig->tessdataDir());
     const int iIdx = m_pOcrLangCombo->findData(m_pConfig->ocrLanguage());
@@ -116,6 +120,9 @@ void SettingsDialog::retranslateUi()
     m_pHotkeyLbl->setText(tr("Hotkey"));
     m_pUpscaleLbl->setText(tr("Upscale factor (1-4)"));
     m_pPopupLbl->setText(tr("Show popup on success"));
+    m_pAutoStartLbl->setText(tr("Start on system startup"));
+    m_pAutoStartCheck->setToolTip(tr(
+        "Launch ClipOCR automatically when you log in to Windows."));
     m_pOcrLangLbl->setText(tr("OCR recognition language"));
     m_pOcrLangCombo->setToolTip(tr(
         "Language of the text in the screenshots (Tesseract code, e.g. chi_sim+eng)."));
@@ -150,6 +157,7 @@ void SettingsDialog::onSave()
     m_pConfig->setHotkey(m_pHotkeyEdit->keySequence());
     m_pConfig->setUpscaleFactor(m_pUpscaleSpin->value());
     m_pConfig->setShowPopup(m_pPopupCheck->isChecked());
+    m_pConfig->setAutoStart(m_pAutoStartCheck->isChecked());
     m_pConfig->setOcrLanguage(m_pOcrLangCombo->currentData().toString());
     m_pConfig->setTesseractPath(m_pTessPathEdit->text().trimmed());
     m_pConfig->setTessdataDir(m_pTessdataEdit->text().trimmed());
@@ -163,6 +171,7 @@ void SettingsDialog::onReset()
     m_pConfig->setHotkey(QKeySequence(QStringLiteral("Ctrl+Alt+O")));
     m_pConfig->setUpscaleFactor(3);
     m_pConfig->setShowPopup(true);
+    m_pConfig->setAutoStart(false);
     m_pConfig->setOcrLanguage(Config::defaultOcrLanguage());
     m_pConfig->setTesseractPath(QStringLiteral("tesseract"));
     m_pConfig->setTessdataDir(QString());

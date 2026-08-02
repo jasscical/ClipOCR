@@ -11,12 +11,13 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Concurrent)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Concurrent Network)
 qt_standard_project_setup()
 
 add_executable(clipocr
     src/main.cpp
     src/Config.h src/Config.cpp
+    src/AutoStarter.h src/AutoStarter.cpp
     src/OcrEngine.h src/OcrEngine.cpp
     src/ImageProcessor.h src/ImageProcessor.cpp
     src/ClipboardMonitor.h src/ClipboardMonitor.cpp
@@ -33,6 +34,7 @@ target_link_libraries(clipocr PRIVATE
     Qt6::Gui
     Qt6::Widgets
     Qt6::Concurrent
+    Qt6::Network
 )
 
 # Windows GUI 子系统：无控制台窗口。

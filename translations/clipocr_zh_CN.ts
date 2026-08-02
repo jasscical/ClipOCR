@@ -36,6 +36,8 @@ Chinese and place it in the tessdata directory.</source><translation>用法：�
     <message><source>Hotkey</source><translation>快捷键</translation></message>
     <message><source>Upscale factor (1-4)</source><translation>放大倍数 (1-4)</translation></message>
     <message><source>Show popup on success</source><translation>识别成功时弹窗提示</translation></message>
+    <message><source>Start on system startup</source><translation>开机启动</translation></message>
+    <message><source>Launch ClipOCR automatically when you log in to Windows.</source><translation>登录 Windows 时自动启动 ClipOCR。</translation></message>
     <message><source>OCR recognition language</source><translation>OCR 识别语言</translation></message>
     <message><source>Language of the text in the screenshots (Tesseract code, e.g. chi_sim+eng).</source><translation>截图里文字的语种（Tesseract 代码，如 chi_sim+eng）。</translation></message>
     <message><source>Chinese + English</source><translation>中文 + 英文</translation></message>
